@@ -1,34 +1,47 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StudentsService, Student } from '../students.service';
+import { switchMap, catchError, map, tap,  } from 'rxjs/operators';
+import { Subject, of, Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-students',
   templateUrl: './students.component.html',
-  styleUrls: ['./students.component.scss'],
-  providers: [StudentsService]
+  styleUrls: ['./students.component.scss']
 })
-export class StudentsComponent {
-  students: Student[];
-  loadingTable: boolean;
-  
-  constructor(private studentsService: StudentsService) {}
+export class StudentsComponent implements OnInit {
+  studentsSearchInput$ = new Subject<void>();
+  subscriptions: Subscription[];
+  students: { name: string; id: number; selected: boolean; }[];
+  loading: boolean = false;
 
-  // esse metodo é chamado quando o click do botão "search students" é clicado
-  getStudents() {
-    // mostrará um texto "loading" na pagina
-    this.loadingTable = true;
+  constructor(private studentsService: StudentsService) { }
 
-    this.studentsService.getStudents().subscribe(students => {
-      // armazenar na lista que vai ser exibida em uma tabela na minha pagina
-      this.students = students;
-
-      this.loadingTable = false;
-    },
-    error => {
-      this.loadingTable = false;
-
-      // um erro aconteceu ao recuperar os estudantes
-      alert(error);
+  ngOnInit(): void {
+    let sub$ = this.studentsSearchInput$.pipe(
+      tap(() => {
+        this.students = [];
+        this.loading = true;
+      }),
+      switchMap(_ => this.studentsService.getStudents().pipe(catchError(e => of([] as Student[])))),
+      map(students => students.map(stds => ({ name: stds.name, id: stds.id, selected: false }))),
+      tap(() => this.loading = false)
+    ).subscribe(studentsPlusSelected => {
+      this.students = studentsPlusSelected;
     });
+
+    this.subscriptions = [sub$];
   }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => {
+      if(!sub.closed)
+        sub.unsubscribe();
+    })
+  }
+
+  getStudents() {
+    // se o filtro for diferente
+      this.studentsSearchInput$.next();
+  }
+
 }
