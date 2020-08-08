@@ -17,6 +17,7 @@ export class StudentsComponent {
   getStudents() {
     // mostrará um texto "loading" na pagina
     this.loading = true;
+    this.students = null;
 
     this.studentsService.getStudents().subscribe(students => {
       // armazenar na lista que vai ser exibida em uma tabela na minha pagina
