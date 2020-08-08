@@ -1,0 +1,1 @@
+Just an app on how to improve Rxjs use on Angular a little bit
