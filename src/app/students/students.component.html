@@ -1,20 +1,16 @@
-<p>students works!</p>
-
 <button (click)="getStudents()">Get Students</button>
-
-<table>
+<div *ngIf="loading">Loading...</div>
+<table *ngIf="students">
     <thead>
         <tr>
             <th>Name</th>
             <th>Id</th>
-            <th>Selected</th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let student of students">
-            <td>{{student.name}}</td>
-            <td>{{student.id}}</td>
-            <td>{{student.selected}}</td>
+            <td>{{student.UserName}}</td>
+            <td>{{student.ID}}</td>
         </tr>
     </tbody>
 </table>
