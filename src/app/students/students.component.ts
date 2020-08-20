@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StudentsService, Student } from '../students.service';
-import { switchMap, catchError, tap,  } from 'rxjs/operators';
+import { switchMap, catchError, tap } from 'rxjs/operators';
 import { Subject, of, Subscription } from 'rxjs';
 
 @Component({
@@ -10,8 +10,8 @@ import { Subject, of, Subscription } from 'rxjs';
   providers: [StudentsService]
 })
 export class StudentsComponent implements OnInit {
-  studentsSearchInput$ = new Subject<void>();
-  subscriptions$: Subscription[];
+  studentsSearchInput$ = new Subject<string>();
+  subscriptions$ = new Subscription();
   students: Student[];
   loading: boolean;
 
@@ -36,19 +36,17 @@ export class StudentsComponent implements OnInit {
       this.students = students;
     });
 
-    this.subscriptions$ = [sub$];
+    this.subscriptions$.add(sub$);
   }
 
   ngOnDestroy() {
-    this.subscriptions$.forEach(sub => {
-      if(!sub.closed)
-        sub.unsubscribe();
-    })
+    this.subscriptions$.unsubscribe();
+    this.studentsSearchInput$.complete();
   }
 
   getStudents() {
     // se o filtro for diferente
-      this.studentsSearchInput$.next();
+      this.studentsSearchInput$.next(new Date().toString());
   }
 
 }

@@ -12,5 +12,5 @@ export class StudentsService {
   constructor(private http: HttpClient) { }
 
   getStudents = () =>
-    this.http.get<Student[]>('http://fakerestapi.azurewebsites.net/api/Users');
+    this.http.get<Student[]>('http://fakerestapii.azurewebsites.net/api/Users');
 }
